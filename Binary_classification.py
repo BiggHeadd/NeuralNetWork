@@ -3,6 +3,7 @@
 # Edited by bighead 18-11-24
 
 import numpy as np
+from util import load_training_data
 
 class logistic_regression:
 
@@ -58,7 +59,7 @@ class logistic_regression:
         """
         self.b1 = 0
         try:
-            self.w1 = np.zeros((1, self. layers))
+            self.w1 = np.zeros((self.layers, self.x_shape[0]))
         except:
             raise AttributeError("please set layers first")
 
@@ -68,7 +69,7 @@ class logistic_regression:
         param: self.x, self.w1, self.b1
         return: Nothing
         """
-        self.y_hat = np.dot(self.w1, self.x) + self.b1
+        self.y_hat = np.dot(self.w1, self.x)
 
     def loss(self):
         """
@@ -76,11 +77,11 @@ class logistic_regression:
         param: self.y, self.y_hat
         return: Nothing
         """
-        self.loss = -1 / self.x_shape[1] * np.sum((self.y * np.log(self.y_hat) + (1 - self.y) * np.log((1-self.y_hat))))
+        self.loss = -1 / self.x_shape[1] * np.sum((self.y * np.log(self.y_hat+0.0000001) + (1 - self.y) * np.log((1-self.y_hat)+0.00000001)))
 
 if __name__ == "__main__":
-    x = np.ones((10, 300))
-    y = np.ones((1, 300))
+    x, y = load_training_data() 
+    print(x.shape)
     log_reg = logistic_regression(x, y)
     log_reg.set_layers(10)
     log_reg.initial_w_b()
