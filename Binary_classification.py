@@ -4,6 +4,9 @@
 
 import numpy as np
 from util import load_training_data
+import os
+
+
 def loss(x_shape, y, y_hat, ):
     """
     do the backward calculate, set the self.loss
@@ -91,10 +94,20 @@ class logistic_regression:
         self.y_hat = self.sigmoid(np.dot(self.w1, self.x)+self.b1)
 
     def gradient_decent(self):
+        """
+        calculate the gradient of w and b, and set the class value self.w1 and self.b1
+        param: None
+        return: Nothing
+        """
         self.dw = 1/self.x_shape[1] * np.dot((self.y_hat - self.y), self.x.T)
         self.db = 1/self.x_shape[1] * np.sum(self.y_hat - self.y)
 
     def train(self, iters=1000, learning_rate=0.01):
+        """
+        training, set param or it will be default setting
+        param: iters, learning_rate
+        return Nothing
+        """
         iter_ = 0
         while(iter_<iters):
             iter_ += 1
@@ -106,11 +119,54 @@ class logistic_regression:
             self.w1 = self.w1 - learning_rate * self.dw
             self.b1 = self.b1 - learning_rate * self.db
 
+    def print_w1_b1(self):
+        """
+        just print the w1 and b1 to see what happen
+        param: None
+        return Nothing
+        """
+        print("w1: " + str(self.w1))
+        print("b1: " + str(self.b1))
+
+    def save_param(self, file_name="default"):
+        """
+        save the param(w1, b1) into the file (default: "model/default_w1_.model", "model/default_b1_.model"
+        param: file_name    the model name (empty for default)
+        return: Nothing
+        """
+        save_dir = "model/"
+        with open(os.path.join(save_dir, file_name+"_w1_.model"), 'w', encoding='utf-8')as f:
+            string = ""
+            for w in self.w1:
+                string_tmp = ""
+                for each_w in w:
+                    string_tmp += str(each_w)+'\t'
+                string += string_tmp[:-1]
+                string += '\n'
+            f.write(string)
+        with open(os.path.join(save_dir, file_name+"_b1_.model"), 'w', encoding='utf-8')as f:
+            f.write(str(self.b1))
+                    
+    def load_param(self, file_name="default"):
+        load_dir = "model/"
+        with open(os.path.join(load_dir, file_name+"_w1_.model"), 'r', encoding='utf-8')as f:
+            w_load = list()
+            for w in f.readlines():
+                w_tmp = list()
+                for each_w in w.split('\t'):
+                    w_tmp.append(np.float(each_w))
+                w_load.append(w_tmp)
+            w_load = np.array(w_load)
+        with open(os.path.join(load_dir, file_name+'_b1_.model'), 'r', encoding='utf-8')as f:
+            b_load = f.read()
+        b_load = np.float(b_load)
+        
+        self.w1 = w_load
+        self.b1 = b_load
 
 if __name__ == "__main__":
     x, y = load_training_data() 
     print(x.shape)
     log_reg = logistic_regression(x, y)
-    log_reg.set_layers(10)
-    log_reg.initial_w_b()
-    log_reg.train()
+    log_reg.load_param()
+    log_reg.print_w1_b1()
