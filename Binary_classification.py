@@ -3,7 +3,7 @@
 # Edited by bighead 18-11-24
 
 import numpy as np
-from util import load_training_data
+from util import load_training_data, load_test_data
 import os
 
 
@@ -26,6 +26,7 @@ class logistic_regression:
     w1 = None
     b1 = None
     y_hat = None
+    y_predict = None
     loss = None
     dw = None
     db = None
@@ -164,9 +165,24 @@ class logistic_regression:
         self.w1 = w_load
         self.b1 = b_load
 
+    def predict(self, test_x):
+        """
+        get the answer of test_x by calculate logistic using the param learned before, and set the self.y_predict
+        param: test_x(np.array)
+        return: y_predict(np.array)
+        """
+        print("predict......")
+        y_predict = self.sigmoid(np.dot(self.w1, test_x) + self.b1)
+        print("finish.......")
+        self.y_predict = y_predict
+        return y_predict
+
+
 if __name__ == "__main__":
     x, y = load_training_data() 
     print(x.shape)
     log_reg = logistic_regression(x, y)
     log_reg.load_param()
     log_reg.print_w1_b1()
+    test_x = load_test_data()
+    log_reg.predict(test_x)

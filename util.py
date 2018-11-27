@@ -25,5 +25,24 @@ def load_training_data():
     y = np.array(y)
     return x.T, y
 
+def load_test_data():
+    """
+    get the test datas and translate them to np.array
+    param: None
+    return: x(np.array)
+    """
+    test_data = "data/Algorithm_book/test_data"
+    with open(test_data, 'r', encoding='utf-8')as f:
+        x = list()
+        for data in f.readlines():
+            x_tmp = data.split('\t')
+            x_tmp_tmp = list()
+            for tmp in x_tmp:
+                x_tmp_tmp.append(np.float(tmp))
+            x.append(x_tmp_tmp)
+        x = np.array(x)
+    return x.T
+
 if __name__ == "__main__":
-    load_training_data()
+    x = load_test_data()
+    print(type(x))
