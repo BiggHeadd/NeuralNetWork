@@ -174,8 +174,14 @@ class logistic_regression:
         print("predict......")
         y_predict = self.sigmoid(np.dot(self.w1, test_x) + self.b1)
         print("finish.......")
-        self.y_predict = y_predict
-        return y_predict
+        y_result = list()
+        for y in y_predict[0]:
+            if y > 0.5:
+                y_result.append(1)
+            else:
+                y_result.append(0)
+        self.y_predict = y_result
+        return y_result
 
 
 if __name__ == "__main__":
@@ -183,6 +189,6 @@ if __name__ == "__main__":
     print(x.shape)
     log_reg = logistic_regression(x, y)
     log_reg.load_param()
-    log_reg.print_w1_b1()
     test_x = load_test_data()
-    log_reg.predict(test_x)
+    y_predict = log_reg.predict(test_x)
+    print(y_predict)
