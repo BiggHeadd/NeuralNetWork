@@ -13,8 +13,8 @@ class logistic_regression_more:
     x = None
     y = None
     hidden_layers = None
-    w = None
-    b = None
+    param_cache = list()
+    A_cache = list()
 
     def __init__(self, x, y):
         """
@@ -36,15 +36,36 @@ class logistic_regression_more:
         sigmoid = 1 / (1 + np.exp(-z))
         return sigmoid
     
-    def initial_param(self, hidden_layers=3):
+    def initial_param(self, layer_l_n_1, layer_l_a_1):
         """
-        initial the param w, b considering with the hidder_layers' numbers
-        param: hidden_layers
-        return: Nothing
+        initial the param w, b considering with the hidder_layers' numbers, and append to the list self.cache, w and b save in the dict A, the key is "w" and "b"
+        param: layer_l_n_1(A[l-1]), layer_l_a_1(A[l])
+        return: w, b (both np.arrays)   w.shape -> (A[l], A[l-1])
         """
-        self.w = np.random.randn(self.x_shape[0], hidden_layers)
-        self.b = np.random.randn()
+        w = np.random.randn(layer_l_a_1, layer_l_n_1)
+        b = np.random.randn()
+        param_cache_tmp = dict()
+        param_cache_tmp['w'] = w
+        param_cache_tmp['b'] = b
+        self.param_cache.append(param_cache_tmp)
         print("initial param successfully!")
+        return w, b
+
+    def forward_propergation(self, A, A_n_1, A_a_1, activation_type="sigmoid"):
+        """
+        initial the param using the initial_param(), and do the forward propergation, the activation is the "activation_type", and add to the cache
+        param: A(the input, like x), A_n_1(A[l-1]), A_a_1(A[l]), activation_type(String, name of activation)
+        return: None
+        """
+        w, b = self.initial_param(A_n_1, A_a_1)
+        z = np.dot(w, A) + b
+        if activation_type == "sigmoid":
+            A = self.sigmoid(z)
+        A_cache_tmp = dict()
+        A_cache_tmp['A'] = A
+        self.A_cache.append(A_cache_tmp)
+        print(A_cache_tmp['A'].shape)
+
 
     def train(self, hidden_layers=3, iters=1):
         self.hidden_layers = hidden_layers
@@ -62,4 +83,7 @@ class logistic_regression_more:
 if __name__ == "__main__":
     x, y = load_training_data()
     log_reg_more = logistic_regression_more(x, y)
-    log_reg_more.train()
+    w, b = log_reg_more.initial_param(2, 3)
+    print("w: " + str(w.shape) + "\nw_shape: " + str(w))
+    print("b: " + str(b))
+    log_reg_more.forward_propergation(x, 2, 3, "sigmoid")
