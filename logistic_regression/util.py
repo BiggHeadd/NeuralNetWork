@@ -11,7 +11,7 @@ def load_training_data():
     return: x, y(both np.array)
     """
     train_data = "data/Algorithm_book/data.txt"
-    with open(train_data, 'r', encoding='utf-8')as f:
+    with open(train_data, 'r')as f:
         x = list()
         y = list()
         for data in f.readlines():
@@ -22,7 +22,7 @@ def load_training_data():
             x.append(x_tmp_tmp)
             y.append(np.float(y_tmp))
     x = np.array(x)
-    y = np.array(y)
+    y = np.array(y) 
     return x.T, y
 
 def load_test_data():
@@ -32,7 +32,7 @@ def load_test_data():
     return: x(np.array)
     """
     test_data = "data/Algorithm_book/test_data"
-    with open(test_data, 'r', encoding='utf-8')as f:
+    with open(test_data, 'r')as f:
         x = list()
         for data in f.readlines():
             x_tmp = data.split('\t')
