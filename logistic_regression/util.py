@@ -20,7 +20,9 @@ def load_training_data():
             for tmp in x_tmp:
                 x_tmp_tmp.append(np.float(tmp))
             x.append(x_tmp_tmp)
-            y.append(np.float(y_tmp))
+            y_float_tmp = list()
+            y_float_tmp.append(np.float(y_tmp))
+            y.append(y_float_tmp)
     x = np.array(x)
     y = np.array(y) 
     return x.T, y
