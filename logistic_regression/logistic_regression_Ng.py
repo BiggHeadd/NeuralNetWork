@@ -3,9 +3,11 @@
 # Edited by bighead 18-12-1
 
 import numpy as np
-from util import load_training_data
+from util import load_training_data, load_test_data
 
 class logistic_regression_Ng:
+
+    parameters = None
 
     def __init__(self):
         pass
@@ -26,7 +28,7 @@ class logistic_regression_Ng:
         print(Y.shape)
         n_x = X.shape[0]
         n_h = 4
-        n_y = Y.shape[1]
+        n_y = Y.shape[0]
         return n_x, n_h, n_y
     
     def initialize_parameters(self, n_x, n_h, n_y):
@@ -112,13 +114,131 @@ class logistic_regression_Ng:
         cost -- cross-entropy cost given equation
         """
 
-        m = Y.shape[0]
-        print(m)
-        logprobs = np.multiply(Y, np.log(A2)) + np.multiply(1-Y, np.log(1-A2))
+        m = Y.shape[1]
+        logprobs = np.multiply(Y, np.log(A2+0.0000001)) + np.multiply(1-Y, np.log(1-A2+0.0000001))
         cost = -1/m * np.sum(logprobs)
         cost = np.squeeze(cost)
         assert(isinstance(cost, float))
         return cost
+
+    def backward_propagation(self, parameters, cache, X, Y):
+        """
+        Implement the backward propagation using the instructions above.
+
+        Arguments:
+        parameters -- python dictionary containing our parameters
+        cache -- a dictionary containing "Z1", "A1", "Z2" and "A2".
+        X -- input data of shape (2, number of examples)
+        Y -- "true" labels vector of shape (1, numberof examples)
+
+        Returns:
+        grads -- python dictionary contraining your gradients with respect to different parameters
+        """
+        m = X.shape[1]
+        
+        Z1 = cache['Z1']
+        A1 = cache['A1']
+        Z2 = cache['Z2']
+        A2 = cache['A2']
+
+        W2 = parameters['w2']
+        b2 = parameters['b2']
+        W1 = parameters['w1']
+        b1 = parameters['b1']
+
+        dZ2 = A2 - Y
+        dW2 = 1/m * np.dot(dZ2, A1.T)
+        db2 = 1/m * np.sum(dZ2, axis=1, keepdims=True)
+        dZ1 = 1/m * np.dot(W2.T, dZ2) * (1 - np.power(A1, 2))
+        dW1 = 1/m * np.dot(dZ1, X.T)
+        db1 = 1/m * np.sum(dZ1, axis=1, keepdims=True)
+
+        grads = {"dW1":dW1,
+                 "db1":db1,
+                 "dW2":dW2,
+                 "db2":db2}
+        return grads
+
+    def update_parameters(self, parameters, grads, learning_rate=1.2):
+        """
+        Updates parameters using the gradient descent update rule given above
+
+        Arguments:
+        parameters -- python dictionary containing your parameters
+        grads -- python dictionary containing your gradients
+
+        Returns:
+        parameters -- python dictionary containing your updated parameters
+        """
+        W1 = parameters['w1']
+        b1 = parameters['b1']
+        W2 = parameters['w2']
+        b2 = parameters['b2']
+
+        dW1 = grads['dW1']
+        dW2 = grads['dW2']
+        db1 = grads['db1']
+        db2 = grads['db2']
+
+        W1 = W1 - learning_rate * dW1
+        b1 = b1 - learning_rate * db1
+        W2 = W2 - learning_rate * dW2
+        b2 = b2 - learning_rate * db2
+
+        parameters = {"w1":W1,
+                      "w2":W2,
+                      "b1":b1,
+                      "b2":b2}
+        
+        return parameters
+
+    def nn_model(self, X, Y, n_h, num_iterations = 10000, print_cost=False):
+        """
+        Arguments:
+        X -- dataset of shape (2, number of examples)
+        Y -- labels of shape (1, number of examples)
+        n_h -- size of the hidden layer
+        num_iterations -- Number of iterations in gradient descent loop
+        print_cost -- if True, print the cost every 1000 iterations
+
+        Returns:
+        parameters -- parameters learnt by the model. They can then be used to predict.
+        """
+
+        n_x, nothing, n_y = self.layer_sizes(x, y)
+        parameters = self.initialize_parameters(n_x, n_h, n_y)
+        W1 = parameters['w1']
+        b1 = parameters['b1']
+        W2 = parameters['w2']
+        b2 = parameters['b2']
+        for i in range(0, num_iterations):
+            A2, cache = self.forward_propagation(X, parameters)
+            cost = self.compute_cost(A2, Y, parameters)
+            if i % 1000 == 0 and print_cost:
+                print("Cost after iteration %i: %f" %(i, cost))
+            grads = self.backward_propagation(parameters, cache, X, Y)
+            parameters = self.update_parameters(parameters, grads)
+        self.parameters = parameters
+        return parameters
+
+    def predict(self, X):
+        """
+        Using the learned parameters, predicts a class for each examples in X
+
+        Arguments:
+        parameters -- python dictionary containing your parameters
+        X -- input data of size (n_x, m)
+
+        Returns:
+        predictions -- vector of predictions of our model (0/1)
+        """
+        A2, cache = self.forward_propagation(X, self.parameters)
+        threshold = 0.5
+        predictions = A2 > threshold
+
+        return predictions
+
+
 
     def run(self):
         n_x, n_h, n_y = self.layer_sizes(x, y)
@@ -126,8 +246,15 @@ class logistic_regression_Ng:
         A2, cache = self.forward_propagation(x, parameters)
         cost = self.compute_cost(A2, y, parameters)
         print(cost)
+        grads = self.backward_propagation(parameters, cache, x, y)
+        self.update_parameters(parameters, grads)
+
 
 if __name__ == "__main__":
     x, y = load_training_data()
     clf = logistic_regression_Ng()
-    clf.run()
+    clf.nn_model(X=x, Y=y, n_h=4, print_cost=True)
+    x_test = load_test_data()
+    y_predict = clf.predict(x_test)
+    print(y_predict)
+    print(np.mean(y_predict))

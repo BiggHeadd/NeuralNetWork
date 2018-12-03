@@ -25,7 +25,7 @@ def load_training_data():
             y.append(y_float_tmp)
     x = np.array(x)
     y = np.array(y) 
-    return x.T, y
+    return x.T, y.T
 
 def load_test_data():
     """
